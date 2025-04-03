@@ -8,19 +8,18 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    // Angle that determines the triangle's position on the circle (in degrees).
+    // Angle that determines the triangle's position on the orbit (in degrees).
     private double angle = 0;
 
-    // Define scene dimensions.
+    // Scene dimensions.
     private final double sceneWidth = 700;
     private final double sceneHeight = 700;
 
-    // Set the radius to be one-third of the scene's width, then reduced to 0.22 times that.
-    private final double radius = (sceneWidth / 3.0) * 0.22;
+    // Define the orbit radius for the triangle's center.
+    private final double orbitRadius = (sceneWidth / 3.0) * 0.22;
 
-    // The center of the scene.
-    private final double centerX = sceneWidth / 2.0;
-    private final double centerY = sceneHeight / 2.0;
+    // Define the hexagon's radius (smaller than orbitRadius so the triangle won't intersect it).
+    private final double hexRadius = orbitRadius - 20;
 
     public static void main(String[] args) {
         launch();
@@ -28,60 +27,64 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Create a triangle with coordinates relative to its own coordinate space.
-        // This triangle is defined so that its tip is at (0, -15) and the base at (-15, 15) and (15, 15).
+        // Calculate the center of the scene.
+        double centerX = sceneWidth / 2.0;
+        double centerY = sceneHeight / 2.0;
+
+        // Create a hexagon centered at (centerX, centerY).
+        Polygon hexagon = new Polygon();
+        // Generate 6 vertices with a -30° offset so the top is flat.
+        for (int i = 0; i < 6; i++) {
+            double theta = Math.toRadians(60 * i - 30);
+            double x = centerX + hexRadius * Math.cos(theta);
+            double y = centerY + hexRadius * Math.sin(theta);
+            hexagon.getPoints().addAll(x, y);
+        }
+        hexagon.setStroke(Color.WHITE); // Outline for visibility.
+        hexagon.setFill(null);          // Transparent fill.
+        hexagon.setRotate(hexagon.getRotate() +30);
+        // Create a triangle with its points defined relative to its own coordinate space.
+        // The tip is at (0, -15) and the base at (-15, 15) and (15, 15).
         Polygon triangle = new Polygon();
         triangle.getPoints().addAll(
-                0.0, -15.0,  // Top (tip)
-                -15.0, 15.0, // Bottom left
-                15.0, 15.0   // Bottom right
+                0.0, -15.0,   // Tip (points outward when not rotated)
+                -15.0, 15.0,  // Bottom left
+                15.0, 15.0    // Bottom right
         );
         triangle.setFill(Color.ORANGE);
 
-        // Set the initial position on the circle (angle = 0).
-        // When angle is 0, the triangle is at (centerX, centerY - radius) and its tip faces upward.
+        // Set the triangle's initial position along the orbit.
+        // At angle 0, its center will be at (centerX, centerY - orbitRadius).
         triangle.setTranslateX(centerX);
-        triangle.setTranslateY(centerY - radius);
+        triangle.setTranslateY(centerY - orbitRadius);
 
-        Scene scene = getScene(triangle);
+        // Add both shapes to the scene.
+        Group root = new Group(hexagon, triangle);
+        Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
+
+        // Listen for key presses to update the triangle's orbit position and rotation.
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.RIGHT) {
+                angle += 60;  // Rotate clockwise.
+            } else if (e.getCode() == KeyCode.LEFT) {
+                angle -= 60;  // Rotate counter-clockwise.
+            }
+
+            double rad = Math.toRadians(angle);
+            double x = centerX + orbitRadius * Math.sin(rad);
+            double y = centerY - orbitRadius * Math.cos(rad);
+            triangle.setTranslateX(x);
+            triangle.setTranslateY(y);
+
+            // Rotate the triangle so that its tip always faces outward.
+            triangle.setRotate(angle);
+        });
 
         stage.setScene(scene);
-        stage.setTitle("Triangle Revolving on a Circle");
+        stage.setTitle("Centered Hexagon and Orbiting Triangle");
         stage.setResizable(false);
         stage.setWidth(sceneWidth);
         stage.setHeight(sceneHeight);
         stage.show();
-
-        // Optionally request focus if key events are not received automatically:
-        // scene.requestFocus();
-    }
-
-    private Scene getScene(Polygon triangle) {
-        Group root = new Group(triangle);
-        Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
-
-        // Listen for key presses to update the angle, position, and rotation of the triangle.
-        scene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.RIGHT) {
-                angle += 60;  // Increase angle for clockwise movement.
-            } else if (e.getCode() == KeyCode.LEFT) {
-                angle -= 60;  // Decrease angle for counter-clockwise movement.
-            }
-
-            // Convert angle to radians for the trigonometric functions.
-            double rad = Math.toRadians(angle);
-
-            // Calculate the new x and y coordinates along the circle.
-            double x = centerX + radius * Math.sin(rad);
-            double y = centerY - radius * Math.cos(rad);
-            triangle.setTranslateX(x);
-            triangle.setTranslateY(y);
-
-            // Rotate the triangle so its tip always faces outward.
-            // Since the triangle's default orientation points upward (which is the outward direction at angle=0),
-            // we simply set its rotation to the current angle.
-            triangle.setRotate(angle);
-        });
-        return scene;
     }
 }
