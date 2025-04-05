@@ -1,3 +1,6 @@
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -5,46 +8,42 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Main extends Application {
 
-    // Angle that determines the triangle's position on the orbit (in degrees).
+    // Angle that determines the triangle's position on the orbit.
     private double angle = 0;
 
     // Scene dimensions.
     private final double sceneWidth = 700;
     private final double sceneHeight = 700;
 
-    // Define the orbit radius for the triangle's center.
+    // Orbit radius for the triangle.
     private final double orbitRadius = (sceneWidth / 3.0) * 0.22;
 
-    // Define the hexagon's radius (smaller than orbitRadius so the triangle won't intersect it).
+    // Hexagon's radius (for the orbit hexagon).
     private final double hexRadius = orbitRadius - 20;
-
-    public static void main(String[] args) {
-        launch();
-    }
 
     @Override
     public void start(Stage stage) {
-        // Calculate the center of the scene.
         double centerX = sceneWidth / 2.0;
         double centerY = sceneHeight / 2.0;
 
-        // Create a hexagon centered at (centerX, centerY).
-        Polygon hexagon = new Polygon();
-        // Generate 6 vertices with a -30° offset so the top is flat.
+        // --- Create the orbit hexagon and triangle ---
+        // Orbit hexagon (for visual reference of the triangle's path).
+        Polygon orbitHexagon = new Polygon();
         for (int i = 0; i < 6; i++) {
             double theta = Math.toRadians(60 * i - 30);
             double x = centerX + hexRadius * Math.cos(theta);
             double y = centerY + hexRadius * Math.sin(theta);
-            hexagon.getPoints().addAll(x, y);
+            orbitHexagon.getPoints().addAll(x, y);
         }
-        hexagon.setStroke(Color.WHITE); // Outline for visibility.
-        hexagon.setFill(null);          // Transparent fill.
-        hexagon.setRotate(hexagon.getRotate() +30);
-        // Create a triangle with its points defined relative to its own coordinate space.
-        // The tip is at (0, -15) and the base at (-15, 15) and (15, 15).
+        orbitHexagon.setStroke(Color.WHITE);
+        orbitHexagon.setFill(null);
+        orbitHexagon.setRotate(orbitHexagon.getRotate() + 30);
+
+        // The orbiting triangle.
         Polygon triangle = new Polygon();
         triangle.getPoints().addAll(
                 0.0, -15.0,   // Tip (points outward when not rotated)
@@ -52,14 +51,29 @@ public class Main extends Application {
                 15.0, 15.0    // Bottom right
         );
         triangle.setFill(Color.ORANGE);
-
-        // Set the triangle's initial position along the orbit.
-        // At angle 0, its center will be at (centerX, centerY - orbitRadius).
+        // Initial position: at angle 0 (above the center).
         triangle.setTranslateX(centerX);
         triangle.setTranslateY(centerY - orbitRadius);
 
-        // Add both shapes to the scene.
-        Group root = new Group(hexagon, triangle);
+        // --- Create the obstacle hexagon that shrinks repeatedly ---
+        Polygon obstacleHexagon = new Polygon();
+        obstacleHexagon.getPoints().addAll(
+                300.0, 0.0,         // 0° point
+                150.0, 259.8,       // 60° point
+                -150.0, 259.8,      // 120° point
+                -300.0, 0.0,        // 180° point
+                -150.0, -259.8,     // 240° point
+                150.0, -259.8       // 300° point
+        );
+        obstacleHexagon.setFill(Color.TRANSPARENT);
+        obstacleHexagon.setStroke(Color.WHITE);
+        obstacleHexagon.setStrokeWidth(3);
+        // Position it at the center (you can adjust as needed).
+        obstacleHexagon.setTranslateX(centerX);
+        obstacleHexagon.setTranslateY(centerY);
+
+        // --- Combine all nodes into one scene ---
+        Group root = new Group(orbitHexagon, triangle, obstacleHexagon);
         Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
 
         // Listen for key presses to update the triangle's orbit position and rotation.
@@ -69,22 +83,35 @@ public class Main extends Application {
             } else if (e.getCode() == KeyCode.LEFT) {
                 angle -= 60;  // Rotate counter-clockwise.
             }
-
             double rad = Math.toRadians(angle);
             double x = centerX + orbitRadius * Math.sin(rad);
             double y = centerY - orbitRadius * Math.cos(rad);
             triangle.setTranslateX(x);
             triangle.setTranslateY(y);
-
-            // Rotate the triangle so that its tip always faces outward.
             triangle.setRotate(angle);
         });
 
+        // --- Set up the obstacle hexagon animation ---
+        Timeline obstacleTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(obstacleHexagon.scaleXProperty(), 1),
+                        new KeyValue(obstacleHexagon.scaleYProperty(), 1)
+                ),
+                new KeyFrame(Duration.seconds(5),
+                        new KeyValue(obstacleHexagon.scaleXProperty(), 0),
+                        new KeyValue(obstacleHexagon.scaleYProperty(), 0)
+                )
+        );
+        obstacleTimeline.setCycleCount(Timeline.INDEFINITE);
+        obstacleTimeline.play();
+
         stage.setScene(scene);
-        stage.setTitle("Centered Hexagon and Orbiting Triangle");
+        stage.setTitle("Combined Animation");
         stage.setResizable(false);
-        stage.setWidth(sceneWidth);
-        stage.setHeight(sceneHeight);
         stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
