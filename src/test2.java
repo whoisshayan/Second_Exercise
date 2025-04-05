@@ -1,3 +1,6 @@
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -6,15 +9,17 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-
 public class test2 extends Application {
-    public static void main(String[] args) {
-        launch(args);
-    }
+
+    private ArrayList<Path> hexagons;
+    private StackPane root;
+    private Random random;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -25,8 +30,7 @@ public class test2 extends Application {
         double x5 = -150.0, y5 = -259.8;     // 240° point
         double x6 = 150.0, y6 = -259.8;      // 300° point
 
-        // Create a Path to draw the hexagon with one missing side.
-        // In this case, we'll omit the side between (x6, y6) and (x1, y1).
+        // Create different hexagon variations.
         Path hexagon1 = new Path();
         hexagon1.getElements().add(new MoveTo(x1, y1));
         hexagon1.getElements().add(new LineTo(x2, y2));
@@ -34,13 +38,9 @@ public class test2 extends Application {
         hexagon1.getElements().add(new LineTo(x4, y4));
         hexagon1.getElements().add(new LineTo(x5, y5));
         hexagon1.getElements().add(new LineTo(x6, y6));
-        // Notice: We do NOT add a LineTo that connects back to (x1, y1).
-
-        // Set the stroke and fill properties.
         hexagon1.setFill(Color.TRANSPARENT);
         hexagon1.setStroke(Color.RED);
         hexagon1.setStrokeWidth(3);
-
 
         Path hexagon2 = new Path();
         hexagon2.getElements().add(new MoveTo(x1, y1));
@@ -102,15 +102,76 @@ public class test2 extends Application {
         hexagon6.setStroke(Color.RED);
         hexagon6.setStrokeWidth(3);
 
-        ArrayList<Path> hexagons = new ArrayList<>(Arrays.asList(hexagon1, hexagon2, hexagon3, hexagon4, hexagon5, hexagon6));
-        Random random = new Random();
-        int randomIndex = random.nextInt(hexagons.size());
-        // Use a StackPane to center the hexagon.
-        StackPane root = new StackPane(hexagons.get(randomIndex));
-        Scene scene = new Scene(root, 600, 600);
+        Path hexagon12 = new Path();
+        hexagon12.getElements().add(new MoveTo(x1, y1));
+        hexagon12.getElements().add(new LineTo(x2, y2));
+        hexagon12.getElements().add(new MoveTo(x3, y3));
+        hexagon12.getElements().add(new LineTo(x4, y4));
+        hexagon12.getElements().add(new MoveTo(x5, y5));
+        hexagon12.getElements().add(new LineTo(x6, y6));
+        hexagon12.setFill(Color.TRANSPARENT);
+        hexagon12.setStroke(Color.RED);
+        hexagon12.setStrokeWidth(3);
 
-        stage.setTitle("Hexagon with One Missing Side");
+        Path hexagon21 = new Path();
+        hexagon21.getElements().add(new MoveTo(x1, y1));
+        hexagon21.getElements().add(new MoveTo(x2, y2));
+        hexagon21.getElements().add(new LineTo(x3, y3));
+        hexagon21.getElements().add(new MoveTo(x4, y4));
+        hexagon21.getElements().add(new LineTo(x5, y5));
+        hexagon21.getElements().add(new MoveTo(x6, y6));
+        hexagon21.getElements().add(new LineTo(x1, y1));
+        hexagon21.setFill(Color.TRANSPARENT);
+        hexagon21.setStroke(Color.RED);
+        hexagon21.setStrokeWidth(3);
+
+        // Store hexagons in an ArrayList.
+        hexagons = new ArrayList<>(Arrays.asList(hexagon1, hexagon2, hexagon3, hexagon4, hexagon5, hexagon6, hexagon12, hexagon21, hexagon21));
+        random = new Random();
+
+        // Create a StackPane to hold the hexagon.
+        root = new StackPane();
+        Scene scene = new Scene(root, 600, 600);
+        stage.setTitle("Random Hexagon Animation");
         stage.setScene(scene);
         stage.show();
+
+        // Start the animation loop.
+        animateNextHexagon();
+    }
+
+    // This method selects a random hexagon, adds it to the scene, and animates it.
+    private void animateNextHexagon() {
+        // Select a random hexagon.
+        int randomIndex = random.nextInt(hexagons.size());
+        Path selectedHexagon = hexagons.get(randomIndex);
+
+        // Clear the previous hexagon and add the new one.
+        root.getChildren().clear();
+        root.getChildren().add(selectedHexagon);
+
+        // Reset the hexagon's scale.
+        selectedHexagon.setScaleX(1);
+        selectedHexagon.setScaleY(1);
+
+        // Create a timeline animation that scales the hexagon down to 0 over 5 seconds.
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(selectedHexagon.scaleXProperty(), 1),
+                        new KeyValue(selectedHexagon.scaleYProperty(), 1)
+                ),
+                new KeyFrame(Duration.seconds(5),
+                        new KeyValue(selectedHexagon.scaleXProperty(), 0),
+                        new KeyValue(selectedHexagon.scaleYProperty(), 0)
+                )
+        );
+
+        // When the animation finishes, call this method again to start a new random hexagon.
+        timeline.setOnFinished(event -> animateNextHexagon());
+        timeline.play();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
