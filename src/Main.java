@@ -26,6 +26,8 @@ public class Main extends Application {
     // Angle for triangle rotation
     private double angle = 0;
 
+    private long gameStartTime;
+
     // Scene dimensions
     private final double sceneWidth = 700;
     private final double sceneHeight = 700;
@@ -264,6 +266,8 @@ public class Main extends Application {
         // For testing, we duplicate one of them.
 //        hexagons.add(hexagon3);
 
+        gameStartTime = System.nanoTime();
+
         random = new Random();
 
         // Start the hexagon animation and collision detection
@@ -427,13 +431,20 @@ public class Main extends Application {
         // Add hexagon to the scene.
         root.getChildren().add(currentHexagon);
 
-        // Animation timeline for scaling down the hexagon.
+        // Calculate elapsed time in seconds from the start of the game
+        double elapsedSeconds = (System.nanoTime() - gameStartTime) / 1_000_000_000.0;
+
+        // Calculate a new duration. For example, start at 2.5 seconds and decrease gradually.
+        // Ensure the duration does not drop below a minimum threshold (e.g., 1 second).
+        double newDurationSeconds = Math.max(1.0, 2.5 - elapsedSeconds * 0.1);
+
+        // Create the timeline with the new, dynamically computed duration.
         currentTimeline = new Timeline(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(currentHexagon.scaleXProperty(), 1),
                         new KeyValue(currentHexagon.scaleYProperty(), 1)
                 ),
-                new KeyFrame(Duration.seconds(2.5),
+                new KeyFrame(Duration.seconds(newDurationSeconds),
                         new KeyValue(currentHexagon.scaleXProperty(), 0),
                         new KeyValue(currentHexagon.scaleYProperty(), 0)
                 )
