@@ -81,7 +81,7 @@ public class Main extends Application {
         triangle.setRotate(0);
 
         // Root Group
-        Group root = new Group(staticHexagon, triangle);
+        Group root = new Group(staticHexagon,GraphicQuadrilateral1,GraphicQuadrilateral2,GraphicQuadrilateral3,GraphicQuadrilateral4,GraphicQuadrilateral5,GraphicQuadrilateral6,triangle);
 
         // Scene Setup
         Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
