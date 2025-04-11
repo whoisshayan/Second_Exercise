@@ -65,8 +65,81 @@ public class Main extends Application {
             staticHexagon.getPoints().addAll(x, y);
         }
         staticHexagon.setStroke(Color.WHITE);
-        staticHexagon.setFill(null);
+        staticHexagon.setFill(Color.BLACK);
         staticHexagon.setRotate(staticHexagon.getRotate() + 30);
+
+
+        Polygon GraphicQuadrilateral1=new Polygon();
+        GraphicQuadrilateral1.getPoints().setAll(
+                381.33, 350.0,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                700.0, 350.0,
+                700.0,700.0,
+                365.67, 377.15
+        );
+        GraphicQuadrilateral1.setFill(Color.WHITE);
+
+        Polygon GraphicQuadrilateral2=new Polygon();
+        GraphicQuadrilateral2.getPoints().setAll(
+                365.67, 377.15,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                700.0, 700.0,
+                350.0,700.0,
+                350.0,377.15
+        );
+        GraphicQuadrilateral2.setFill(Color.BLUE);
+
+        Polygon GraphicQuadrilateral21=new Polygon();
+        GraphicQuadrilateral21.getPoints().setAll(
+                350.0, 377.15,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                350.0, 700.0,
+                0.0,700.0,
+                334.33,377.15
+        );
+        GraphicQuadrilateral21.setFill(Color.WHITE);
+
+        Polygon GraphicQuadrilateral3=new Polygon();
+        GraphicQuadrilateral3.getPoints().setAll(
+                334.33,377.15,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                0.0, 700.0,
+                0.0,350.0,
+                318.67,350.0
+        );
+        GraphicQuadrilateral3.setFill(Color.BLUE);
+
+        Polygon GraphicQuadrilateral4=new Polygon();
+        GraphicQuadrilateral4.getPoints().setAll(
+                318.67,350.0,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                0.0, 350.0,
+                0.0,0.0,
+                334.33,322.85
+        );
+        GraphicQuadrilateral4.setFill(Color.WHITE);
+
+        Polygon GraphicQuadrilateral5=new Polygon();
+        GraphicQuadrilateral5.getPoints().setAll(
+                334.33,322.85,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                0.0, 0.0,
+                350.0,0.0,
+                350.0,322.85
+        );
+        GraphicQuadrilateral5.setFill(Color.BLUE);
+
+        Polygon GraphicQuadrilateral51=new Polygon();
+        GraphicQuadrilateral51.getPoints().setAll(
+                350.0,0.0,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                700.0, 0.0,
+                365.67,322.85,
+                350.0,322.85
+        );
+        GraphicQuadrilateral51.setFill(Color.WHITE);
+
+        Polygon GraphicQuadrilateral6=new Polygon();
+        GraphicQuadrilateral6.getPoints().setAll(
+                365.67,322.85,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                700.0, 0.0,
+                700.0,350.0,
+                381.33,350.0
+        );
+        GraphicQuadrilateral6.setFill(Color.BLUE);
 
         // Orbiting Triangle (always closed)
         Polygon triangle = new Polygon();
@@ -75,13 +148,13 @@ public class Main extends Application {
                 -5.0, 15.0,  // Bottom left
                 5.0, 15.0    // Bottom right
         );
-        triangle.setFill(Color.ORANGE);
+        triangle.setFill(Color.BLACK);
         triangle.setTranslateX(centerX);
         triangle.setTranslateY(centerY - orbitRadius);
         triangle.setRotate(0);
 
         // Root Group
-        Group root = new Group(staticHexagon,GraphicQuadrilateral1,GraphicQuadrilateral2,GraphicQuadrilateral3,GraphicQuadrilateral4,GraphicQuadrilateral5,GraphicQuadrilateral6,triangle);
+        Group root = new Group(staticHexagon,GraphicQuadrilateral1,GraphicQuadrilateral2,GraphicQuadrilateral3,GraphicQuadrilateral4,GraphicQuadrilateral5,GraphicQuadrilateral6,GraphicQuadrilateral21,GraphicQuadrilateral51,triangle);
 
         // Scene Setup
         Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
@@ -291,13 +364,19 @@ public class Main extends Application {
             }
         };
         collisionTimer.start();
-
+        scene.setFill(Color.RED);
         // Stage Setup
         stage.setScene(scene);
         stage.setTitle("Combined Hexagon Game");
         stage.setResizable(false);
         stage.show();
+        // Start the continuous random rotation of the entire scene.
+        rotateSceneRandomly(root);
+
     }
+
+
+
 
     // Collision detection: check if any triangle edge collides with any hexagon edge.
     private boolean checkEdgeCollision(Polygon triangle, Path hexagon) {
@@ -456,5 +535,20 @@ public class Main extends Application {
             animateNextHexagon(root, centerX, centerY);
         });
         currentTimeline.play();
+    }
+
+
+    // Method that rotates the entire scene (i.e. the root group) to a random angle continuously.
+    private void rotateSceneRandomly(Group root) {
+        // Generate a new random angle between 0 and 360 degrees.
+        double newAngle = random.nextDouble() * 360;
+        // Create a Timeline that animates the rotation to the new angle over 5 seconds.
+        Timeline rotationTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(3.5), new KeyValue(root.rotateProperty(), newAngle))
+        );
+        // When the rotation animation finishes, call rotateSceneRandomly() recursively for a new random rotation.
+        rotationTimeline.setOnFinished(event -> rotateSceneRandomly(root));
+        // Start the animation.
+        rotationTimeline.play();
     }
 }
