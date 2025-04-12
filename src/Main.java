@@ -14,6 +14,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ClosePath;
 import javafx.scene.shape.LineTo;
@@ -23,6 +25,7 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +37,12 @@ public class Main extends Application {
 
     // Time when the game started
     private long gameStartTime;
+
+    // Added fields for pause/resume
+    private long totalPausedTime = 0;
+    private long pauseStartTime = 0;
+    private boolean isPaused = false;
+    private VBox pauseMenu;  // Pause menu overlay
 
     // Scene dimensions
     private final double sceneWidth = 700;
@@ -53,12 +62,33 @@ public class Main extends Application {
     private Path currentHexagon;
     private Timeline currentTimeline;
 
+    // MediaPlayer for background music (so we can mute/unmute)
+    private MediaPlayer mediaPlayer;
+
+    // Declare AnimationTimer references so they can be stopped/started on pause/resume
+    private AnimationTimer timerDisplay;
+    private AnimationTimer collisionTimer;
+
+    // Store the rotation timeline so it can be paused/resumed
+    private Timeline rotationTimeline;
+
+    public static String playerName = "Unknown";
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage stage) {
+
+        // 🎵 Add background music (from Bensound)
+        String musicFile = "https://www.bensound.com/bensound-music/bensound-slowmotion.mp3";
+        Media media = new Media(musicFile);
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setVolume(1.0); // Set volume (1.0 = 100%)
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop the music
+        mediaPlayer.play(); // Start playing
+
         double centerX = sceneWidth / 2.0;
         double centerY = sceneHeight / 2.0;
 
@@ -175,26 +205,53 @@ public class Main extends Application {
         // Build the UI overlay (fixed, non-rotating)
         // ===========================================
         Pane uiPane = new Pane();
-        // Timer label at top-left corner
         Label timerLabel = new Label("Time: 0.00 s");
         timerLabel.setLayoutX(10);
         timerLabel.setLayoutY(10);
         timerLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: red;");
         uiPane.getChildren().add(timerLabel);
 
+        // ===========================================
+        // Create the Pause Menu Overlay
+        // ===========================================
+        pauseMenu = new VBox(20);
+        pauseMenu.setAlignment(Pos.CENTER);
+        pauseMenu.setPrefSize(sceneWidth, sceneHeight);
+        pauseMenu.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
+        Button btnBackToMenu = new Button("Back to Menu");
+        Button btnMute = new Button("Mute Song");
+        Button btnContinue = new Button("Continue");
+        btnBackToMenu.setStyle("-fx-font-size: 20px; -fx-padding: 10 20 10 20; -fx-background-color: #3498db; -fx-text-fill: white;");
+        btnMute.setStyle("-fx-font-size: 20px; -fx-padding: 10 20 10 20; -fx-background-color: #3498db; -fx-text-fill: white;");
+        btnContinue.setStyle("-fx-font-size: 20px; -fx-padding: 10 20 10 20; -fx-background-color: #3498db; -fx-text-fill: white;");
+        pauseMenu.getChildren().addAll(btnBackToMenu, btnMute, btnContinue);
+        pauseMenu.setVisible(false);
+
+        // ===========================================
         // Combine the rotating game content and UI overlay using a StackPane.
-        StackPane root = new StackPane(rotatingGroup, uiPane);
+        // ===========================================
+        StackPane root = new StackPane(rotatingGroup, uiPane, pauseMenu);
         Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
 
         // ===========================================
-        // Key Press Handling for the orbiting triangle.
+        // Key Press Handling for Pause and Gameplay
         // ===========================================
         scene.setOnKeyPressed(e -> {
-            if (gameOver) return;  // No movement if game is over
-
-            if (e.getCode() == KeyCode.RIGHT) {
+            if(e.getCode() == KeyCode.ESCAPE){
+                if(!isPaused){
+                    pauseGame();
+                    isPaused = true;
+                } else {
+                    resumeGame();
+                    isPaused = false;
+                }
+                e.consume();
+                return;
+            }
+            if(gameOver || isPaused) return;
+            if(e.getCode() == KeyCode.RIGHT){
                 angle += 60;
-            } else if (e.getCode() == KeyCode.LEFT) {
+            } else if(e.getCode() == KeyCode.LEFT){
                 angle -= 60;
             }
             double rad = Math.toRadians(angle);
@@ -206,9 +263,30 @@ public class Main extends Application {
         });
 
         // ===========================================
+        // Pause Menu Button Actions
+        // ===========================================
+        btnBackToMenu.setOnAction(e -> {
+            mediaPlayer.stop();
+            Menu m = new Menu();
+            try {
+                m.start(stage);
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        btnMute.setOnAction(e -> {
+            boolean muted = mediaPlayer.isMute();
+            mediaPlayer.setMute(!muted);
+            btnMute.setText(muted ? "Mute Song" : "Unmute Song");
+        });
+        btnContinue.setOnAction(e -> {
+            resumeGame();
+            isPaused = false;
+        });
+
+        // ===========================================
         // Setup Hexagon Obstacles (added to rotatingGroup)
         // ===========================================
-        // Define hexagon obstacle points.
         double x1 = 300.0, y1 = 0.0;
         double x2 = 150.0, y2 = 259.8;
         double x3 = -150.0, y3 = 259.8;
@@ -217,7 +295,6 @@ public class Main extends Application {
         double x6 = 150.0, y6 = -259.8;
 
         hexagons = new ArrayList<>();
-        // Fully closed hexagon.
         Path hexagon1 = new Path();
         hexagon1.getElements().addAll(
                 new MoveTo(x3, y3),
@@ -232,7 +309,6 @@ public class Main extends Application {
         hexagon1.setFill(Color.TRANSPARENT);
         hexagons.add(hexagon1);
 
-        // Open hexagon.
         Path hexagon2 = new Path();
         hexagon2.getElements().addAll(
                 new MoveTo(x2, y2),
@@ -247,7 +323,6 @@ public class Main extends Application {
         hexagon2.setFill(Color.TRANSPARENT);
         hexagons.add(hexagon2);
 
-        // Additional hexagon variations.
         Path hexagon3 = new Path();
         hexagon3.getElements().addAll(
                 new MoveTo(x1, y1),
@@ -381,13 +456,13 @@ public class Main extends Application {
         // ===========================================
         // Timer Display (updates every frame)
         // ===========================================
-        AnimationTimer timerDisplay = new AnimationTimer() {
+        timerDisplay = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (gameOver) {
                     this.stop();
                 } else {
-                    double elapsedSeconds = (now - gameStartTime) / 1_000_000_000.0;
+                    double elapsedSeconds = (now - gameStartTime - totalPausedTime) / 1_000_000_000.0;
                     timerLabel.setText(String.format("Time: %.2f s", elapsedSeconds));
                 }
             }
@@ -402,7 +477,7 @@ public class Main extends Application {
         // ===========================================
         // Collision Detection
         // ===========================================
-        AnimationTimer collisionTimer = new AnimationTimer() {
+        collisionTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (!gameOver && currentHexagon != null) {
@@ -411,10 +486,12 @@ public class Main extends Application {
                         if (currentTimeline != null) {
                             currentTimeline.stop();
                         }
+                        // Calculate the survival time (excluding paused time) and save the player's score.
+                        double elapsedSeconds = (System.nanoTime() - gameStartTime - totalPausedTime) / 1_000_000_000.0;
+                        savePlayerScore(playerName, elapsedSeconds);
                         System.out.println("Game Over!");
-                        // Show the Game Over overlay UI
-                        showGameOverUI(uiPane,stage);
-                        stop();
+                        showGameOverUI(uiPane, stage);
+                        this.stop();
                     }
                 }
             }
@@ -435,11 +512,41 @@ public class Main extends Application {
         rotateSceneRandomly(rotatingGroup);
     }
 
+    // -------------------- Pause/Resume Methods -------------------- //
+
+    private void pauseGame() {
+        pauseMenu.setVisible(true);
+        pauseStartTime = System.nanoTime();
+        timerDisplay.stop();
+        collisionTimer.stop();
+        if (currentTimeline != null) {
+            currentTimeline.pause();
+        }
+        if (rotationTimeline != null) {
+            rotationTimeline.pause();
+        }
+    }
+
+    private void resumeGame() {
+        pauseMenu.setVisible(false);
+        long pauseDuration = System.nanoTime() - pauseStartTime;
+        totalPausedTime += pauseDuration;
+        timerDisplay.start();
+        collisionTimer.start();
+        if (currentTimeline != null) {
+            currentTimeline.play();
+        }
+        if (rotationTimeline != null) {
+            rotationTimeline.play();
+        }
+    }
+
+    // -------------------- End Pause/Resume Methods -------------------- //
+
     // ----------------------------------------------
     // Helper method to add Game Over UI elements.
     // ----------------------------------------------
-    private void showGameOverUI(Pane uiPane,Stage stage) {
-        // Create a VBox to hold the Game Over label and Back button.
+    private void showGameOverUI(Pane uiPane, Stage stage) {
         VBox gameOverBox = new VBox(20);
         gameOverBox.setAlignment(Pos.CENTER);
         gameOverBox.setPrefSize(sceneWidth, sceneHeight);
@@ -447,18 +554,16 @@ public class Main extends Application {
         Label gameOverLabel = new Label("Game Over");
         gameOverLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: orange; -fx-font-weight: bold;");
 
-
         Button backButton = new Button("Back");
         backButton.setStyle("-fx-font-size: 24px; -fx-padding: 10 20 10 20;");
-        // (Event handling for the Back button can be added here later.)
         backButton.setOnAction(actionEvent -> {
-            Menu m=new Menu();
-            try{
+            Menu m = new Menu();
+            try {
                 m.start(stage);
             } catch (Exception e) {
                 e.printStackTrace();
-        }});
-
+            }
+        });
 
         gameOverBox.getChildren().addAll(gameOverLabel, backButton);
         uiPane.getChildren().add(gameOverBox);
@@ -502,8 +607,7 @@ public class Main extends Application {
     // Extract drawn edges from a Path.
     private List<LineSegment> getEdgesFromPath(Path path) {
         List<LineSegment> edges = new ArrayList<>();
-        double startX = 0, startY = 0;
-        double lastX = 0, lastY = 0;
+        double startX = 0, startY = 0, lastX = 0, lastY = 0;
         boolean inSubpath = false;
 
         for (PathElement elem : path.getElements()) {
@@ -574,20 +678,15 @@ public class Main extends Application {
     // Animate the next hexagon obstacle by adding it to the rotating group.
     private void animateNextHexagon(Group rotatingGroup, double centerX, double centerY) {
         if (gameOver) return;
-
         int randomIndex = random.nextInt(hexagons.size());
         currentHexagon = hexagons.get(randomIndex);
-
         currentHexagon.setTranslateX(centerX);
         currentHexagon.setTranslateY(centerY);
         currentHexagon.setScaleX(1);
         currentHexagon.setScaleY(1);
-
         rotatingGroup.getChildren().add(currentHexagon);
-
-        double elapsedSeconds = (System.nanoTime() - gameStartTime) / 1_000_000_000.0;
+        double elapsedSeconds = (System.nanoTime() - gameStartTime - totalPausedTime) / 1_000_000_000.0;
         double newDurationSeconds = Math.max(1.0, 2.5 - elapsedSeconds * 0.1);
-
         currentTimeline = new Timeline(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(currentHexagon.scaleXProperty(), 1),
@@ -598,7 +697,6 @@ public class Main extends Application {
                         new KeyValue(currentHexagon.scaleYProperty(), 0)
                 )
         );
-
         currentTimeline.setOnFinished(event -> {
             rotatingGroup.getChildren().remove(currentHexagon);
             animateNextHexagon(rotatingGroup, centerX, centerY);
@@ -609,10 +707,21 @@ public class Main extends Application {
     // Continuously rotates only the game content (rotatingGroup).
     private void rotateSceneRandomly(Group rotatingGroup) {
         double newAngle = random.nextDouble() * 360;
-        Timeline rotationTimeline = new Timeline(
+        rotationTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(3), new KeyValue(rotatingGroup.rotateProperty(), newAngle))
         );
         rotationTimeline.setOnFinished(event -> rotateSceneRandomly(rotatingGroup));
         rotationTimeline.play();
+    }
+
+    // Save the player's score (name and survival time) in "players.txt".
+    private void savePlayerScore(String playerName, double survivalTime) {
+        try (FileWriter fw = new FileWriter("players.txt", true);
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw)) {
+            out.println(playerName + " - " + String.format("%.2f", survivalTime) + " s");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
