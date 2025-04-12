@@ -9,6 +9,8 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.*;
@@ -93,6 +95,12 @@ public class Menu extends Application {
         vbox.setAlignment(Pos.CENTER);
         vbox.getChildren().addAll(title, btnStart, btnGameHistory, btnSettings, btnExit);
 
+        // Add the highest score label at the top of the VBox.
+        Label highestScoreLabel = new Label(getHighestScore());
+        highestScoreLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        highestScoreLabel.setTextFill(Color.DARKBLUE);
+        vbox.getChildren().add(0, highestScoreLabel);
+
         StackPane root = new StackPane();
         root.getChildren().addAll(backgroundPane, vbox);
 
@@ -108,9 +116,7 @@ public class Menu extends Application {
         settingsStage.initModality(Modality.WINDOW_MODAL);
         settingsStage.setTitle("Settings");
 
-        // Create a checkbox for mute/unmute.
         CheckBox muteCheckBox = new CheckBox("Mute Music");
-        // Set current state from mediaPlayer.
         muteCheckBox.setSelected(mediaPlayer.isMute());
         muteCheckBox.setOnAction(e -> {
             mediaPlayer.setMute(muteCheckBox.isSelected());
@@ -146,22 +152,17 @@ public class Menu extends Application {
         btnStartGame.setOnAction(e -> {
             String playerName = nameField.getText().trim();
             if (!playerName.isEmpty()) {
-                Main.playerName = playerName; // <== pass the name to Main!
+                Main.playerName = playerName; // Pass the name to Main!
                 inputStage.close();
-                mediaPlayer.stop(); // optional: stop menu music
+                mediaPlayer.stop(); // Optionally stop menu music
                 Main m = new Main();
                 m.start(primaryStage);
-            }
-                 else {
+            } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "Please enter your name.", ButtonType.OK);
                 alert.showAndWait();
             }
         });
     }
-
-    /*
-    * Alert alert = new Alert(Alert.AlertType.WARNING, "Please enter your name.", ButtonType.OK);
-                alert.showAndWait();*/
 
     // Saves the player's name to players.txt.
     private void savePlayerName(String playerName) {
@@ -216,5 +217,44 @@ public class Menu extends Application {
         Polygon triangle = new Polygon();
         triangle.getPoints().addAll(x1, y1, x2, y2, x3, y3);
         return triangle;
+    }
+
+    // Method to read the highest score from players.txt
+    private String getHighestScore() {
+        String highestPlayer = "";
+        double highestScore = 0.0;
+
+        // Use the PLAYER_FILE constant to read scores from players.txt.
+        File file = new File(PLAYER_FILE);
+        if (!file.exists()) {
+            return "No scores yet";
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            // Expected format per line: "playerName - time s"
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(" - ");
+                if (parts.length == 2) {
+                    String name = parts[0].trim();
+                    String scoreStr = parts[1].trim();
+                    // Remove the trailing "s" if it exists.
+                    scoreStr = scoreStr.replace("s", "").trim();
+                    double score = Double.parseDouble(scoreStr);
+                    if (score > highestScore) {
+                        highestScore = score;
+                        highestPlayer = name;
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        if (highestPlayer.isEmpty()) {
+            return "No scores yet";
+        }
+
+        return "The highest score is " + highestPlayer + " - " + highestScore + " s";
     }
 }

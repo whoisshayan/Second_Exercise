@@ -92,6 +92,13 @@ public class Main extends Application {
         double centerX = sceneWidth / 2.0;
         double centerY = sceneHeight / 2.0;
 
+        // ----------------------------------------------------------------
+        // Define the background pane (needed for the theme change)
+        // ----------------------------------------------------------------
+        Pane backgroundPane = new Pane();
+        backgroundPane.setPrefSize(sceneWidth, sceneHeight);
+        backgroundPane.setStyle("-fx-background-color: #2c3e50;");
+
         // ===========================================
         // Build the rotating game content (rotates)
         // ===========================================
@@ -228,9 +235,9 @@ public class Main extends Application {
         pauseMenu.setVisible(false);
 
         // ===========================================
-        // Combine the rotating game content and UI overlay using a StackPane.
+        // Combine the backgroundPane, rotatingGroup, UI overlay, and pauseMenu using a StackPane.
         // ===========================================
-        StackPane root = new StackPane(rotatingGroup, uiPane, pauseMenu);
+        StackPane root = new StackPane(backgroundPane, rotatingGroup, uiPane, pauseMenu);
         Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
 
         // ===========================================
@@ -510,6 +517,29 @@ public class Main extends Application {
         // Start Rotating the Game Content Only
         // ===========================================
         rotateSceneRandomly(rotatingGroup);
+
+        // -------------------------------------------------------------------
+        // NEW CODE: Light theme that changes every 3 seconds.
+        // -------------------------------------------------------------------
+        Timeline themeTimeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
+            int choice = random.nextInt(2);
+            String bgColor, shapeColor;
+            if (choice == 0) {
+                bgColor = "lightblue";
+                shapeColor = "lightcoral";
+            } else {
+                bgColor = "lightgreen";
+                shapeColor = "lightyellow";
+            }
+            // Apply the chosen background color to the background pane.
+            backgroundPane.setStyle("-fx-background-color: " + bgColor + ";");
+            // Also update the scene fill
+            scene.setFill(Color.web(bgColor));
+            // Update the static hexagon's fill for contrast
+            staticHexagon.setFill(Color.web(shapeColor));
+        }));
+        themeTimeline.setCycleCount(Timeline.INDEFINITE);
+        themeTimeline.play();
     }
 
     // -------------------- Pause/Resume Methods -------------------- //
