@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a352ae1e-2f21-4718-b8b1-1c6509a89a02" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Menu.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Drug.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../Employee.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../Pharmacy.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../init_2.zip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../test.java" beforeDir="false" afterPath="$PROJECT_DIR$/../test.java" afterDir="false" />
     </list>
@@ -38,25 +40,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,
-    &quot;Application.test.executor&quot;: &quot;Run&quot;,
-    &quot;Application.test2.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/university/AP/Second_Exercise&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;D:/university/AP/Second_Exercise/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15332031&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Application.Menu.executor": "Run",
+    "Application.Unnamed.executor": "Run",
+    "Application.test.executor": "Run",
+    "Application.test2.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/university/AP/Second_Exercise",
+    "onboarding.tips.debug.path": "D:/university/AP/Second_Exercise/src/Main.java",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15332031",
+    "project.structure.side.proportion": "0.2"
   }
-}</component>
-  <component name="RunManager" selected="Application.Main">
+}]]></component>
+  <component name="RunManager" selected="Application.Menu">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="Second_Exercise" />
@@ -65,8 +68,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="test" />
+    <configuration name="Menu" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Menu" />
       <module name="Second_Exercise" />
       <option name="VM_PARAMETERS" value=" --module-path &quot;D:\university\AP\javafx-sdk-21.0.6\lib&quot; --add-modules javafx.controls,javafx.fxml" />
       <method v="2">
@@ -84,12 +87,12 @@
     <list>
       <item itemvalue="Application.Main" />
       <item itemvalue="Application.test2" />
-      <item itemvalue="Application.test" />
+      <item itemvalue="Application.Menu" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Menu" />
         <item itemvalue="Application.test2" />
-        <item itemvalue="Application.test" />
       </list>
     </recent_temporary>
   </component>

@@ -148,7 +148,7 @@ public class Main extends Application {
                 -5.0, 15.0,  // Bottom left
                 5.0, 15.0    // Bottom right
         );
-        triangle.setFill(Color.BLACK);
+        triangle.setFill(Color.RED);
         triangle.setTranslateX(centerX);
         triangle.setTranslateY(centerY - orbitRadius);
         triangle.setRotate(0);
@@ -544,7 +544,7 @@ public class Main extends Application {
         double newAngle = random.nextDouble() * 360;
         // Create a Timeline that animates the rotation to the new angle over 5 seconds.
         Timeline rotationTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(3.5), new KeyValue(root.rotateProperty(), newAngle))
+                new KeyFrame(Duration   .seconds(3), new KeyValue(root.rotateProperty(), newAngle))
         );
         // When the rotation animation finishes, call rotateSceneRandomly() recursively for a new random rotation.
         rotationTimeline.setOnFinished(event -> rotateSceneRandomly(root));
