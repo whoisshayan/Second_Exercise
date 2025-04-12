@@ -68,8 +68,7 @@ public class Menu extends Application {
                     m.start(primaryStage);  // This replaces the current scene with test2's scene.
             } catch (Exception e) {
                  e.printStackTrace();
-            }
-                    });
+            }});
 
 
         // Set action for the exit button to close the application
@@ -111,6 +110,3 @@ public class Menu extends Application {
         return triangle;
     }
 }
-
-
-

@@ -5,9 +5,15 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ClosePath;
 import javafx.scene.shape.LineTo;
@@ -26,6 +32,7 @@ public class Main extends Application {
     // Angle for triangle rotation
     private double angle = 0;
 
+    // Time when the game started
     private long gameStartTime;
 
     // Scene dimensions
@@ -52,9 +59,13 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Center of the scene
         double centerX = sceneWidth / 2.0;
         double centerY = sceneHeight / 2.0;
+
+        // ===========================================
+        // Build the rotating game content (rotates)
+        // ===========================================
+        Group rotatingGroup = new Group();
 
         // Static Hexagon for visual reference (closed shape)
         Polygon staticHexagon = new Polygon();
@@ -68,105 +79,123 @@ public class Main extends Application {
         staticHexagon.setFill(Color.BLACK);
         staticHexagon.setRotate(staticHexagon.getRotate() + 30);
 
-
-        Polygon GraphicQuadrilateral1=new Polygon();
+        // Add graphic quadrilaterals (game background elements)
+        Polygon GraphicQuadrilateral1 = new Polygon();
         GraphicQuadrilateral1.getPoints().setAll(
-                381.33, 350.0,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                381.33, 350.0,
                 700.0, 350.0,
-                700.0,700.0,
+                700.0, 700.0,
                 365.67, 377.15
         );
         GraphicQuadrilateral1.setFill(Color.WHITE);
 
-        Polygon GraphicQuadrilateral2=new Polygon();
+        Polygon GraphicQuadrilateral2 = new Polygon();
         GraphicQuadrilateral2.getPoints().setAll(
-                365.67, 377.15,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                365.67, 377.15,
                 700.0, 700.0,
-                350.0,700.0,
-                350.0,377.15
+                350.0, 700.0,
+                350.0, 377.15
         );
         GraphicQuadrilateral2.setFill(Color.BLUE);
 
-        Polygon GraphicQuadrilateral21=new Polygon();
+        Polygon GraphicQuadrilateral21 = new Polygon();
         GraphicQuadrilateral21.getPoints().setAll(
-                350.0, 377.15,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                350.0, 377.15,
                 350.0, 700.0,
-                0.0,700.0,
-                334.33,377.15
+                0.0, 700.0,
+                334.33, 377.15
         );
         GraphicQuadrilateral21.setFill(Color.WHITE);
 
-        Polygon GraphicQuadrilateral3=new Polygon();
+        Polygon GraphicQuadrilateral3 = new Polygon();
         GraphicQuadrilateral3.getPoints().setAll(
-                334.33,377.15,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                334.33, 377.15,
                 0.0, 700.0,
-                0.0,350.0,
-                318.67,350.0
+                0.0, 350.0,
+                318.67, 350.0
         );
         GraphicQuadrilateral3.setFill(Color.BLUE);
 
-        Polygon GraphicQuadrilateral4=new Polygon();
+        Polygon GraphicQuadrilateral4 = new Polygon();
         GraphicQuadrilateral4.getPoints().setAll(
-                318.67,350.0,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                318.67, 350.0,
                 0.0, 350.0,
-                0.0,0.0,
-                334.33,322.85
+                0.0, 0.0,
+                334.33, 322.85
         );
         GraphicQuadrilateral4.setFill(Color.WHITE);
 
-        Polygon GraphicQuadrilateral5=new Polygon();
+        Polygon GraphicQuadrilateral5 = new Polygon();
         GraphicQuadrilateral5.getPoints().setAll(
-                334.33,322.85,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                334.33, 322.85,
                 0.0, 0.0,
-                350.0,0.0,
-                350.0,322.85
+                350.0, 0.0,
+                350.0, 322.85
         );
         GraphicQuadrilateral5.setFill(Color.BLUE);
 
-        Polygon GraphicQuadrilateral51=new Polygon();
+        Polygon GraphicQuadrilateral51 = new Polygon();
         GraphicQuadrilateral51.getPoints().setAll(
-                350.0,0.0,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                350.0, 0.0,
                 700.0, 0.0,
-                365.67,322.85,
-                350.0,322.85
+                365.67, 322.85,
+                350.0, 322.85
         );
         GraphicQuadrilateral51.setFill(Color.WHITE);
 
-        Polygon GraphicQuadrilateral6=new Polygon();
+        Polygon GraphicQuadrilateral6 = new Polygon();
         GraphicQuadrilateral6.getPoints().setAll(
-                365.67,322.85,   // Vertex 0: (381.33,350) Vertex 1:(365.67,377.15) Vertex 2: (334.33,377.15) Vertex 3: (318.67,350) Vertex 4:(334.33,322.85)  Vertex 5:(365.67,322.85)
+                365.67, 322.85,
                 700.0, 0.0,
-                700.0,350.0,
-                381.33,350.0
+                700.0, 350.0,
+                381.33, 350.0
         );
         GraphicQuadrilateral6.setFill(Color.BLUE);
 
         // Orbiting Triangle (always closed)
         Polygon triangle = new Polygon();
         triangle.getPoints().addAll(
-                0.0, -5.0,   // Tip
-                -5.0, 15.0,  // Bottom left
-                5.0, 15.0    // Bottom right
+                0.0, -5.0,
+                -5.0, 15.0,
+                5.0, 15.0
         );
         triangle.setFill(Color.RED);
         triangle.setTranslateX(centerX);
         triangle.setTranslateY(centerY - orbitRadius);
         triangle.setRotate(0);
 
-        // Root Group
-        Group root = new Group(staticHexagon,GraphicQuadrilateral1,GraphicQuadrilateral2,GraphicQuadrilateral3,GraphicQuadrilateral4,GraphicQuadrilateral5,GraphicQuadrilateral6,GraphicQuadrilateral21,GraphicQuadrilateral51,triangle);
+        rotatingGroup.getChildren().addAll(
+                staticHexagon, GraphicQuadrilateral1, GraphicQuadrilateral2,
+                GraphicQuadrilateral21, GraphicQuadrilateral3, GraphicQuadrilateral4,
+                GraphicQuadrilateral5, GraphicQuadrilateral51, GraphicQuadrilateral6,
+                triangle
+        );
 
-        // Scene Setup
+        // ===========================================
+        // Build the UI overlay (fixed, non-rotating)
+        // ===========================================
+        Pane uiPane = new Pane();
+        // Timer label at top-left corner
+        Label timerLabel = new Label("Time: 0.00 s");
+        timerLabel.setLayoutX(10);
+        timerLabel.setLayoutY(10);
+        timerLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: red;");
+        uiPane.getChildren().add(timerLabel);
+
+        // Combine the rotating game content and UI overlay using a StackPane.
+        StackPane root = new StackPane(rotatingGroup, uiPane);
         Scene scene = new Scene(root, sceneWidth, sceneHeight, Color.BLACK);
 
-        // Key Press Handling for Triangle (only if game is not over)
+        // ===========================================
+        // Key Press Handling for the orbiting triangle.
+        // ===========================================
         scene.setOnKeyPressed(e -> {
-            if (gameOver) return;  // Prevent movement after game over
+            if (gameOver) return;  // No movement if game is over
 
             if (e.getCode() == KeyCode.RIGHT) {
-                angle += 60;  // Clockwise
+                angle += 60;
             } else if (e.getCode() == KeyCode.LEFT) {
-                angle -= 60;  // Counter-clockwise
+                angle -= 60;
             }
             double rad = Math.toRadians(angle);
             double x = centerX + orbitRadius * Math.sin(rad);
@@ -176,8 +205,10 @@ public class Main extends Application {
             triangle.setRotate(angle);
         });
 
-        // Define Hexagon Points
-        // Note: Some of these hexagons may be intentionally missing sides (open paths).
+        // ===========================================
+        // Setup Hexagon Obstacles (added to rotatingGroup)
+        // ===========================================
+        // Define hexagon obstacle points.
         double x1 = 300.0, y1 = 0.0;
         double x2 = 150.0, y2 = 259.8;
         double x3 = -150.0, y3 = 259.8;
@@ -185,45 +216,46 @@ public class Main extends Application {
         double x5 = -150.0, y5 = -259.8;
         double x6 = 150.0, y6 = -259.8;
 
-        // Create Hexagon Variations
         hexagons = new ArrayList<>();
-
-        // A fully closed hexagon
+        // Fully closed hexagon.
         Path hexagon1 = new Path();
         hexagon1.getElements().addAll(
-                new MoveTo(x3,y3),
-                new LineTo(x4,y4),
-                new LineTo(x5,y5),
-                new LineTo(x6,y6),
-                new LineTo(x1,y1),
-                new LineTo(x2,y2)
+                new MoveTo(x3, y3),
+                new LineTo(x4, y4),
+                new LineTo(x5, y5),
+                new LineTo(x6, y6),
+                new LineTo(x1, y1),
+                new LineTo(x2, y2)
         );
         hexagon1.setStroke(Color.RED);
         hexagon1.setStrokeWidth(20);
         hexagon1.setFill(Color.TRANSPARENT);
         hexagons.add(hexagon1);
 
-        // An open hexagon missing the edge between the last and first point.
+        // Open hexagon.
         Path hexagon2 = new Path();
         hexagon2.getElements().addAll(
-                new MoveTo(x2, y2), new LineTo(x3, y3), new LineTo(x4, y4),
-                new LineTo(x5, y5), new LineTo(x6, y6),new LineTo(x1, y1)
-                // Note: no edge back to x1,y1 => open side.
+                new MoveTo(x2, y2),
+                new LineTo(x3, y3),
+                new LineTo(x4, y4),
+                new LineTo(x5, y5),
+                new LineTo(x6, y6),
+                new LineTo(x1, y1)
         );
         hexagon2.setStroke(Color.RED);
         hexagon2.setStrokeWidth(20);
         hexagon2.setFill(Color.TRANSPARENT);
         hexagons.add(hexagon2);
 
-        // Other variations (example open paths)
+        // Additional hexagon variations.
         Path hexagon3 = new Path();
         hexagon3.getElements().addAll(
-                new MoveTo(x1,y1),
-                new LineTo(x2,y2),
-                new LineTo(x3,y3),
-                new LineTo(x4,y4),
-                new LineTo(x5,y5),
-                new LineTo(x6,y6)
+                new MoveTo(x1, y1),
+                new LineTo(x2, y2),
+                new LineTo(x3, y3),
+                new LineTo(x4, y4),
+                new LineTo(x5, y5),
+                new LineTo(x6, y6)
         );
         hexagon3.setStroke(Color.RED);
         hexagon3.setStrokeWidth(20);
@@ -232,12 +264,12 @@ public class Main extends Application {
 
         Path hexagon4 = new Path();
         hexagon4.getElements().addAll(
-                new MoveTo(x4,y4),
-                new LineTo(x5,y5),
-                new LineTo(x6,y6),
-                new LineTo(x1,y1),
-                new LineTo(x2,y2),
-                new LineTo(x3,y3)
+                new MoveTo(x4, y4),
+                new LineTo(x5, y5),
+                new LineTo(x6, y6),
+                new LineTo(x1, y1),
+                new LineTo(x2, y2),
+                new LineTo(x3, y3)
         );
         hexagon4.setStroke(Color.RED);
         hexagon4.setStrokeWidth(20);
@@ -246,12 +278,12 @@ public class Main extends Application {
 
         Path hexagon5 = new Path();
         hexagon5.getElements().addAll(
-                new MoveTo(x5,y5),
-                new LineTo(x6,y6),
-                new LineTo(x1,y1),
-                new LineTo(x2,y2),
-                new LineTo(x3,y3),
-                new LineTo(x4,y4)
+                new MoveTo(x5, y5),
+                new LineTo(x6, y6),
+                new LineTo(x1, y1),
+                new LineTo(x2, y2),
+                new LineTo(x3, y3),
+                new LineTo(x4, y4)
         );
         hexagon5.setStroke(Color.RED);
         hexagon5.setStrokeWidth(20);
@@ -260,25 +292,26 @@ public class Main extends Application {
 
         Path hexagon6 = new Path();
         hexagon6.getElements().addAll(
-                new MoveTo(x6,y6),
-                new LineTo(x1,y1),
-                new LineTo(x2,y2),
-                new LineTo(x3,y3),
-                new LineTo(x4,y4),
-                new LineTo(x5,y5)
+                new MoveTo(x6, y6),
+                new LineTo(x1, y1),
+                new LineTo(x2, y2),
+                new LineTo(x3, y3),
+                new LineTo(x4, y4),
+                new LineTo(x5, y5)
         );
         hexagon6.setStroke(Color.RED);
         hexagon6.setStrokeWidth(20);
         hexagon6.setFill(Color.TRANSPARENT);
         hexagons.add(hexagon6);
 
-
         Path hexagon12 = new Path();
         hexagon12.getElements().addAll(
-                new MoveTo(x1, y1), new LineTo(x2, y2),
-                new MoveTo(x3, y3), new LineTo(x4, y4), new LineTo(x5, y5),
+                new MoveTo(x1, y1),
+                new LineTo(x2, y2),
+                new MoveTo(x3, y3),
+                new LineTo(x4, y4),
+                new LineTo(x5, y5),
                 new LineTo(x6, y6)
-                // Two subpaths: one from x1->x2, and one open from x3->x4->x5->x6.
         );
         hexagon12.setStroke(Color.RED);
         hexagon12.setStrokeWidth(20);
@@ -287,8 +320,11 @@ public class Main extends Application {
 
         Path hexagon13 = new Path();
         hexagon13.getElements().addAll(
-                new MoveTo(x1, y1), new LineTo(x2, y2),
-                new LineTo(x3, y3), new LineTo(x4, y4), new MoveTo(x5, y5),
+                new MoveTo(x1, y1),
+                new LineTo(x2, y2),
+                new LineTo(x3, y3),
+                new LineTo(x4, y4),
+                new MoveTo(x5, y5),
                 new LineTo(x6, y6)
         );
         hexagon13.setStroke(Color.RED);
@@ -298,8 +334,11 @@ public class Main extends Application {
 
         Path hexagon11 = new Path();
         hexagon11.getElements().addAll(
-                new MoveTo(x1, y1), new LineTo(x2, y2),
-                new LineTo(x3, y3), new MoveTo(x4, y4), new LineTo(x5, y5),
+                new MoveTo(x1, y1),
+                new LineTo(x2, y2),
+                new LineTo(x3, y3),
+                new MoveTo(x4, y4),
+                new LineTo(x5, y5),
                 new LineTo(x6, y6)
         );
         hexagon11.setStroke(Color.RED);
@@ -309,12 +348,12 @@ public class Main extends Application {
 
         Path hexagon111 = new Path();
         hexagon111.getElements().addAll(
-                new MoveTo(x1,y1),
-                new LineTo(x2,y2),
-                new MoveTo(x3,y3),
-                new LineTo(x4,y4),
-                new MoveTo(x5,y5),
-                new LineTo(x6,y6)
+                new MoveTo(x1, y1),
+                new LineTo(x2, y2),
+                new MoveTo(x3, y3),
+                new LineTo(x4, y4),
+                new MoveTo(x5, y5),
+                new LineTo(x6, y6)
         );
         hexagon111.setStroke(Color.RED);
         hexagon111.setStrokeWidth(20);
@@ -323,70 +362,114 @@ public class Main extends Application {
 
         Path hexagon112 = new Path();
         hexagon112.getElements().addAll(
-                new MoveTo(x2,y2),
-                new LineTo(x3,y3),
-                new MoveTo(x4,y4),
-                new LineTo(x5,y5),
-                new MoveTo(x6,y6),
-                new LineTo(x1,y1)
+                new MoveTo(x2, y2),
+                new LineTo(x3, y3),
+                new MoveTo(x4, y4),
+                new LineTo(x5, y5),
+                new MoveTo(x6, y6),
+                new LineTo(x1, y1)
         );
         hexagon112.setStroke(Color.RED);
         hexagon112.setStrokeWidth(20);
         hexagon112.setFill(Color.TRANSPARENT);
         hexagons.add(hexagon112);
 
-        // You can add more variations as needed...
-        // For testing, we duplicate one of them.
-//        hexagons.add(hexagon3);
-
+        // Set game start time and initialize random generator.
         gameStartTime = System.nanoTime();
-
         random = new Random();
 
-        // Start the hexagon animation and collision detection
-        animateNextHexagon(root, centerX, centerY);
+        // ===========================================
+        // Timer Display (updates every frame)
+        // ===========================================
+        AnimationTimer timerDisplay = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (gameOver) {
+                    this.stop();
+                } else {
+                    double elapsedSeconds = (now - gameStartTime) / 1_000_000_000.0;
+                    timerLabel.setText(String.format("Time: %.2f s", elapsedSeconds));
+                }
+            }
+        };
+        timerDisplay.start();
 
-        // AnimationTimer to check for collisions continuously based on edge intersections
+        // ===========================================
+        // Animate Hexagon Obstacles (added to rotatingGroup)
+        // ===========================================
+        animateNextHexagon(rotatingGroup, centerX, centerY);
+
+        // ===========================================
+        // Collision Detection
+        // ===========================================
         AnimationTimer collisionTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (!gameOver && currentHexagon != null) {
-                    // Check if any triangle edge intersects any drawn hexagon edge.
                     if (checkEdgeCollision(triangle, currentHexagon)) {
                         gameOver = true;
                         if (currentTimeline != null) {
                             currentTimeline.stop();
                         }
                         System.out.println("Game Over!");
+                        // Show the Game Over overlay UI
+                        showGameOverUI(uiPane,stage);
                         stop();
                     }
                 }
             }
         };
         collisionTimer.start();
+
+        // (Optional) Set a scene fill color.
         scene.setFill(Color.RED);
-        // Stage Setup
+
         stage.setScene(scene);
         stage.setTitle("Combined Hexagon Game");
         stage.setResizable(false);
         stage.show();
-        // Start the continuous random rotation of the entire scene.
-        rotateSceneRandomly(root);
 
+        // ===========================================
+        // Start Rotating the Game Content Only
+        // ===========================================
+        rotateSceneRandomly(rotatingGroup);
     }
 
+    // ----------------------------------------------
+    // Helper method to add Game Over UI elements.
+    // ----------------------------------------------
+    private void showGameOverUI(Pane uiPane,Stage stage) {
+        // Create a VBox to hold the Game Over label and Back button.
+        VBox gameOverBox = new VBox(20);
+        gameOverBox.setAlignment(Pos.CENTER);
+        gameOverBox.setPrefSize(sceneWidth, sceneHeight);
+
+        Label gameOverLabel = new Label("Game Over");
+        gameOverLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: orange; -fx-font-weight: bold;");
 
 
+        Button backButton = new Button("Back");
+        backButton.setStyle("-fx-font-size: 24px; -fx-padding: 10 20 10 20;");
+        // (Event handling for the Back button can be added here later.)
+        backButton.setOnAction(actionEvent -> {
+            Menu m=new Menu();
+            try{
+                m.start(stage);
+            } catch (Exception e) {
+                e.printStackTrace();
+        }});
 
-    // Collision detection: check if any triangle edge collides with any hexagon edge.
+
+        gameOverBox.getChildren().addAll(gameOverLabel, backButton);
+        uiPane.getChildren().add(gameOverBox);
+    }
+
+    // ----------------------------------------------
+    // Collision Detection: triangle vs hexagon.
+    // ----------------------------------------------
     private boolean checkEdgeCollision(Polygon triangle, Path hexagon) {
-        // Get triangle edges (closed polygon, always add last->first)
         List<LineSegment> triangleEdges = getPolygonEdges(triangle);
-
-        // Get hexagon edges using our helper that respects open subpaths.
         List<LineSegment> hexEdges = getEdgesFromPath(hexagon);
-
-        // Test each pair for intersection.
         for (LineSegment tEdge : triangleEdges) {
             for (LineSegment hEdge : hexEdges) {
                 if (linesIntersect(
@@ -408,7 +491,6 @@ public class Main extends Application {
             Point2D pt = polygon.localToScene(points.get(i), points.get(i + 1));
             coords.add(pt);
         }
-        // Create edges, wrapping last to first.
         for (int i = 0; i < coords.size(); i++) {
             Point2D p1 = coords.get(i);
             Point2D p2 = coords.get((i + 1) % coords.size());
@@ -417,8 +499,7 @@ public class Main extends Application {
         return edges;
     }
 
-    // Extract only the drawn edges from a Path.
-    // This method builds edges for each subpath separately.
+    // Extract drawn edges from a Path.
     private List<LineSegment> getEdgesFromPath(Path path) {
         List<LineSegment> edges = new ArrayList<>();
         double startX = 0, startY = 0;
@@ -443,7 +524,6 @@ public class Main extends Application {
                     lastY = lineTo.getY();
                 }
             } else if (elem instanceof ClosePath) {
-                // Only close the subpath if a ClosePath element is explicitly provided.
                 Point2D p1 = path.localToScene(lastX, lastY);
                 Point2D p2 = path.localToScene(startX, startY);
                 edges.add(new LineSegment(p1, p2));
@@ -453,7 +533,7 @@ public class Main extends Application {
         return edges;
     }
 
-    // Helper class to represent a line segment.
+    // Helper class representing a line segment.
     private static class LineSegment {
         Point2D start, end;
         public LineSegment(Point2D start, Point2D end) {
@@ -462,7 +542,7 @@ public class Main extends Application {
         }
     }
 
-    // Check if two line segments (p1->p2 and p3->p4) intersect.
+    // Determine if two line segments intersect.
     private boolean linesIntersect(double x1, double y1, double x2, double y2,
                                    double x3, double y3, double x4, double y4) {
         double d1 = direction(x3, y3, x4, y4, x1, y1);
@@ -480,44 +560,34 @@ public class Main extends Application {
         return false;
     }
 
-    // Computes the cross product (used for orientation testing)
+    // Computes the cross-product for orientation testing.
     private double direction(double ax, double ay, double bx, double by, double px, double py) {
         return (px - ax) * (by - ay) - (py - ay) * (bx - ax);
     }
 
-    // Check if point (px,py) lies on the segment (ax,ay)->(bx,by)
+    // Check if (px,py) lies on the segment (ax,ay) to (bx,by).
     private boolean onSegment(double ax, double ay, double bx, double by, double px, double py) {
         return Math.min(ax, bx) <= px && px <= Math.max(ax, bx) &&
                 Math.min(ay, by) <= py && py <= Math.max(ay, by);
     }
 
-    // Animate the next hexagon obstacle.
-    private void animateNextHexagon(Group root, double centerX, double centerY) {
+    // Animate the next hexagon obstacle by adding it to the rotating group.
+    private void animateNextHexagon(Group rotatingGroup, double centerX, double centerY) {
         if (gameOver) return;
 
-        // Select a random hexagon.
         int randomIndex = random.nextInt(hexagons.size());
         currentHexagon = hexagons.get(randomIndex);
 
-        // Center the hexagon in the scene.
         currentHexagon.setTranslateX(centerX);
         currentHexagon.setTranslateY(centerY);
-
-        // Reset scale.
         currentHexagon.setScaleX(1);
         currentHexagon.setScaleY(1);
 
-        // Add hexagon to the scene.
-        root.getChildren().add(currentHexagon);
+        rotatingGroup.getChildren().add(currentHexagon);
 
-        // Calculate elapsed time in seconds from the start of the game
         double elapsedSeconds = (System.nanoTime() - gameStartTime) / 1_000_000_000.0;
-
-        // Calculate a new duration. For example, start at 2.5 seconds and decrease gradually.
-        // Ensure the duration does not drop below a minimum threshold (e.g., 1 second).
         double newDurationSeconds = Math.max(1.0, 2.5 - elapsedSeconds * 0.1);
 
-        // Create the timeline with the new, dynamically computed duration.
         currentTimeline = new Timeline(
                 new KeyFrame(Duration.ZERO,
                         new KeyValue(currentHexagon.scaleXProperty(), 1),
@@ -529,26 +599,20 @@ public class Main extends Application {
                 )
         );
 
-        // When the animation finishes, remove the hexagon and animate the next one.
         currentTimeline.setOnFinished(event -> {
-            root.getChildren().remove(currentHexagon);
-            animateNextHexagon(root, centerX, centerY);
+            rotatingGroup.getChildren().remove(currentHexagon);
+            animateNextHexagon(rotatingGroup, centerX, centerY);
         });
         currentTimeline.play();
     }
 
-
-    // Method that rotates the entire scene (i.e. the root group) to a random angle continuously.
-    private void rotateSceneRandomly(Group root) {
-        // Generate a new random angle between 0 and 360 degrees.
+    // Continuously rotates only the game content (rotatingGroup).
+    private void rotateSceneRandomly(Group rotatingGroup) {
         double newAngle = random.nextDouble() * 360;
-        // Create a Timeline that animates the rotation to the new angle over 5 seconds.
         Timeline rotationTimeline = new Timeline(
-                new KeyFrame(Duration   .seconds(3), new KeyValue(root.rotateProperty(), newAngle))
+                new KeyFrame(Duration.seconds(3), new KeyValue(rotatingGroup.rotateProperty(), newAngle))
         );
-        // When the rotation animation finishes, call rotateSceneRandomly() recursively for a new random rotation.
-        rotationTimeline.setOnFinished(event -> rotateSceneRandomly(root));
-        // Start the animation.
+        rotationTimeline.setOnFinished(event -> rotateSceneRandomly(rotatingGroup));
         rotationTimeline.play();
     }
 }
